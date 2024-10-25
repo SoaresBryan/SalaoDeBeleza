@@ -16,8 +16,10 @@ namespace SalaoDeBeleza
                     Console.WriteLine("=== Sistema de Gestão de Salão de Beleza ===");
                     Console.WriteLine("1. Cadastrar Profissional");
                     Console.WriteLine("2. Cadastrar Cliente");
-                    Console.WriteLine("3. Agendar Serviço");
-                    Console.WriteLine("4. Listar Serviços Agendados");
+                    Console.WriteLine("3. Cadastrar Tipo de Serviço");
+                    Console.WriteLine("4. Agendar Serviço");
+                    Console.WriteLine("5. Listar Serviços Agendados");
+                    Console.WriteLine("6. Listar IDs de Clientes e Profissionais");
                     Console.WriteLine("0. Sair");
                     Console.Write("Selecione uma opção: ");
 
@@ -30,10 +32,16 @@ namespace SalaoDeBeleza
                             CadastrarCliente(context);
                             break;
                         case "3":
-                            AgendarServico(context);
+                            CadastrarTipoDeServico(context);
                             break;
                         case "4":
+                            AgendarServico(context);
+                            break;
+                        case "5":
                             ListarServicosAgendados(context);
+                            break;
+                        case "6":
+                            ListarIdsDeClientesEProfissionais(context);
                             break;
                         case "0":
                             return;
@@ -58,7 +66,6 @@ namespace SalaoDeBeleza
             Console.Write("Endereço: ");
             string endereco = Console.ReadLine();
 
-            // Validação da data de nascimento com TryParseExact
             Console.Write("Data de Nascimento (yyyy-MM-dd): ");
             DateTime dataNascimento;
             while (!DateTime.TryParseExact(Console.ReadLine(), "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out dataNascimento))
@@ -98,7 +105,6 @@ namespace SalaoDeBeleza
             Console.Write("Endereço: ");
             string endereco = Console.ReadLine();
 
-            // Validação da data de nascimento com TryParseExact
             Console.Write("Data de Nascimento (yyyy-MM-dd): ");
             DateTime dataNascimento;
             while (!DateTime.TryParseExact(Console.ReadLine(), "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out dataNascimento))
@@ -122,14 +128,31 @@ namespace SalaoDeBeleza
             Console.ReadKey();
         }
 
+        static void CadastrarTipoDeServico(AppDbContext context)
+        {
+            Console.WriteLine("\n=== Cadastro de Tipo de Serviço ===");
+            Console.Write("Descrição do Serviço: ");
+            string nomeServico = Console.ReadLine();
+            Console.Write("Preço do Serviço: ");
+            decimal precoServico = decimal.Parse(Console.ReadLine());
+
+            var servico = new Servico
+            {
+                NomeServico = nomeServico,
+                PrecoServico = precoServico
+            };
+
+            context.Servicos.Add(servico);
+            context.SaveChanges();
+            Console.WriteLine("Serviço cadastrado com sucesso! Pressione qualquer tecla para continuar...");
+            Console.ReadKey();
+        }
+
         static void AgendarServico(AppDbContext context)
         {
             Console.WriteLine("\n=== Agendamento de Serviço ===");
 
-            // Listar Clientes para mostrar os IDs
             ListarClientes(context);
-
-            // Selecionar Cliente
             Console.Write("ID do Cliente: ");
             int idCliente = int.Parse(Console.ReadLine());
             var cliente = context.Clientes.Find(idCliente);
@@ -140,10 +163,7 @@ namespace SalaoDeBeleza
                 return;
             }
 
-            // Listar Profissionais para mostrar os IDs
             ListarProfissionais(context);
-
-            // Selecionar Profissional
             Console.Write("ID do Profissional: ");
             int idProfissional = int.Parse(Console.ReadLine());
             var profissional = context.Profissionais.Find(idProfissional);
@@ -154,10 +174,7 @@ namespace SalaoDeBeleza
                 return;
             }
 
-            // Listar Serviços para mostrar os IDs
             ListarServicos(context);
-
-            // Selecionar Serviço
             Console.Write("ID do Serviço: ");
             int idServico = int.Parse(Console.ReadLine());
             var servico = context.Servicos.Find(idServico);
@@ -168,7 +185,6 @@ namespace SalaoDeBeleza
                 return;
             }
 
-            // Validação da data do agendamento com TryParseExact
             Console.Write("Data do Agendamento (yyyy-MM-dd): ");
             DateTime dataAgendamento;
             while (!DateTime.TryParseExact(Console.ReadLine(), "yyyy-MM-dd", null, System.Globalization.DateTimeStyles.None, out dataAgendamento))
@@ -219,9 +235,20 @@ namespace SalaoDeBeleza
             Console.ReadKey();
         }
 
+        static void ListarIdsDeClientesEProfissionais(AppDbContext context)
+        {
+            Console.WriteLine("\n=== IDs de Clientes ===");
+            ListarClientes(context);
+
+            Console.WriteLine("\n=== IDs de Profissionais ===");
+            ListarProfissionais(context);
+
+            Console.WriteLine("Pressione qualquer tecla para continuar...");
+            Console.ReadKey();
+        }
+
         static void ListarClientes(AppDbContext context)
         {
-            Console.WriteLine("\n=== Lista de Clientes ===");
             var clientes = context.Clientes.ToList();
             foreach (var cliente in clientes)
             {
@@ -232,7 +259,6 @@ namespace SalaoDeBeleza
 
         static void ListarProfissionais(AppDbContext context)
         {
-            Console.WriteLine("\n=== Lista de Profissionais ===");
             var profissionais = context.Profissionais.ToList();
             foreach (var profissional in profissionais)
             {
@@ -243,7 +269,6 @@ namespace SalaoDeBeleza
 
         static void ListarServicos(AppDbContext context)
         {
-            Console.WriteLine("\n=== Lista de Serviços ===");
             var servicos = context.Servicos.ToList();
             foreach (var servico in servicos)
             {
